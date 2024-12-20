@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온도 모니터링 시스템</title>
+    <link href="login-style.css" rel="stylesheet" type="text/css">
+    
+
+    <script>
+        async function login(event) {
+            event.preventDefault();
+
+            const id = document.getElementById("ID").value;
+            const password = document.getElementById("Password").value;
+
+            try {
+                const response = await fetch('http://54.180.212.252:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ID: id, Password: password })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    window.location.href = "http://54.180.212.252/monitoring.html";
+                    alert('Login successful: ' + result.message);
+                } else {
+                    const errorData = await response.json();
+                    alert('Login failed: ' + errorData.message);
+                }
+            } catch (error) {
+                console.error('An error occurred during login:', error);
+                alert('An error occurred while processing the login request');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>온도 모니터링 시스템</h2>
+    <div class="login-wrapper">
+        
+        <form id="login-form" onsubmit="login(event)">
+            <input type="text" id="ID" placeholder="ID" required>
+            <input type="password" id="Password" placeholder="Password" required>
+            <input class="login-button" type="submit" value="Login">
+        </form>
+    </div>
+
+
+</body>
+</html>
