@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<meta http-equiv="refresh" content="60">--> <!-- 60초마다 페이지 새로고침 -->
+    <title>온도 모니터링 시스템</title>
+    <!-- ECharts 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+    <!-- jQuery 추가 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Basic DataGrid - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../demo.css">
+    <script type="text/javascript" src="../../jquery.min.js"></script>
+    <script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+    <title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
+
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+
+    <!-- jQuery, EasyUI, 그리고 ECharts를 위한 스크립트 추가 -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery-easyui/1.10.1/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.0.2/dist/echarts.min.js"></script>
+
+
+    <style>
+        /* 기본 스타일 설정 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* TOP 영역 */
+        #top {
+            background-color:#696969;
+            color: white;
+            padding: 5px;
+            text-align: left;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        /* 메인 콘텐츠 영역 (3x2 그리드) */
+        #main-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3개의 컬럼 */
+            grid-template-rows: repeat(2, minmax(300px, 1fr)); /* 각 행의 최소 높이를 설정 */
+            gap: 1px;
+            padding: 1px;
+            flex-grow: 1; /* 남은 공간을 차지 */
+            overflow: hidden; /* 그리드 영역이 넘치지 않도록 설정 */
+        }
+        
+        /* 각 구획 스타일 */
+        .chart-container {
+            border: 1px solid #ddd;
+            padding: 1px;
+            background-color: #f9f9f9;
+            height: auto;  /* 높이를 자동으로 설정하여 화면 크기에 따라 조정 */
+        }
+        
+        .chart {
+            width: 100%;
+            height: 100%;
+            max-height: 400px; /* 너무 큰 차트가 되지 않도록 최대 높이 제한 */
+        }
+        
+        /* 화면 크기가 작은 경우에 대한 스타일 */
+        @media (max-width: 768px) {
+            #main-content {
+                grid-template-columns: 1fr;  /* 한 열로 변경 */
+                grid-template-rows: repeat(6, 1fr); /* 6개의 작은 행으로 나누기 */
+            }
+            .chart-container {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* TAIL 영역 */
+        #tail {
+            background-color: #333;
+            color: white;
+            padding: 1px;
+            text-align: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-areas:
+                "top-left top-right"
+                "center center"
+                "high high"
+                "low low"
+                "end end";
+            grid-template-rows: 1fr 2fr 1fr 1fr 2fr;
+            grid-template-columns: 1fr 1fr;
+            height: 100%; 
+            width: 100%; 
+            position: relative;
+        }
+
+        .top-left {
+            grid-area: top-left;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 5px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .top-right {
+            grid-area: top-right;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 5px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .text {
+            grid-area: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .high-container {
+            grid-area: high;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .low-container {
+            grid-area: low;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .label {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .input-box {
+            width: 80px;
+            height: 25px;
+            font-size: 15px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .set {
+            width: 50px;
+            height: 25px;
+            color: #030303;
+            border-radius: 5px;
+            font-size: 15px;
+            background-color: #e9e9e9;
+            cursor: pointer;
+            outline: none;
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+
+        .lamp-alarm {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; 
+        }
+
+    </style>
+</head>
+
+<body>
+
+        <!-- TOP 영역 -->
+        <div id="top">
+            온도 모니터링 시스템
+        </div>
+    
+        <!-- 메인 콘텐츠 영역 (3x2 그리드) -->
+        <div id="main-content">
+            <div class="chart-container" style="background-color: #000; color: white;">
+                <div class="chart">
+                    <div class="grid-container">
+                        <div class="top-left">
+                            <p>T54</p>
+                        </div>
+                        <div class="top-right">
+                            <p>TemcoLine</p>
+                        </div>
+                        <div class="text">
+                            <p id="current-value">현재온도(PV): ##.# °C</p>
+                        </div>
+                        <div class="high-container">
+                            <label for="high-input" class="label">High 값 입력:</label>
+                            <input type="text" id="high-input" placeholder="Set High" class="input-box high-input">
+                            <input id="hv" class="set" type="submit" value="Set">
+                        </div>
+                        <div class="low-container">
+                            <label for="low-input" class="label">Low &nbsp;값 입력:</label>
+                            <input type="text" id="low-input" placeholder="Set Low" class="input-box low-input">
+                            <input id="lv" class="set" type="submit" value="Set">
+                        </div>
+                    </div>
+                </div>
+    	</div>
+
+        <div class="chart-container">
+            <div class="chart">
+                <!-- 첫 번째 버튼: 온도 값을 표시하는 버튼 -->
+                <p style="text-align: center; font-size: 20px; padding-top: 5px;">
+                    <button id="sortAscBtn" style="font-size: 18px; padding: 5px; margin-right: 20px;">오름차순 정렬</button>
+                    <button id="sortDescBtn" style="font-size: 18px; padding: 5px; margin-left: 20px;">내림차순 정렬</button>
+                </p>
+            </div>
+            
+            <!-- EasyUI 테이블을 표시할 부분 -->
+            <table id="dataTable" class="easyui-datagrid" style="width:100%; height:auto;" data-options="singleSelect:true,fitColumns:true">
+                <thead>
+                    <tr>
+                        <th data-options="field:'time',width:150,align:'center'">시간</th>
+                        <th data-options="field:'max',width:100,align:'center'">최대값</th>
+                        <th data-options="field:'avg',width:100,align:'center'">평균값</th>
+                        <th data-options="field:'min',width:100,align:'center'">최소값</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        
+
+	<div class="chart-container">
+    	    <div class="chart">
+    	        <!-- 첫 번째 버튼: 온도 값을 표시하는 버튼 -->
+    	        <p style="text-align: center; font-size: 20px;">
+    	            <button id="check-alarms" style="font-size: 18px; padding: 5px; width: 150px;">조    회</button>
+    	        </p>
+    	        <p style="text-align: left; font-size: 18px;">알람 회수</p>
+    	        <p style="text-align: center; font-size: 18px;">
+    	            <span style="margin-right: 50px;">High Alarm</span>
+    	            <span id="high-alarm-count" style="margin-right: 10px;">##</span>
+    	            <span style="margin-right: 50px;">회</span>
+    	        </p>
+    	        <p style="text-align: center; font-size: 18px;">
+    	            <span style="margin-right: 50px;">Low Alarm</span>
+    	            <span id="low-alarm-count" style="margin-right: 10px;">##</span>
+    	            <span style="margin-right: 50px;">회</span>
+    	        </p>
+    	        <p style="text-align: left; font-size: 18px;">마지막 알람 발생시간</p>
+    	        <p style="text-align: center; font-size: 18px;">
+    	            <span style="margin-right: 50px;">High Alarm</span>
+    	            <span id="high-alarm-time" style="margin-right: 10px;">##:##:##</span>
+    	        </p>
+    	        <p style="text-align: center; font-size: 18px; padding-top: 1px;">
+    	            <span style="margin-right: 50px;">Low Alarm</span>
+    	            <span id="low-alarm-time" style="margin-right: 10px;">##:##:##</span>
+    	        </p>
+    	    </div>
+    	</div>
+
+
+        <div class="chart-container">
+            <div class="lamp-alarm">
+                <img src="lamp/RED_OFF.png" alt="Red Lamp" class="red-lamp" style="width:160px; height:280px;">
+                <img src="lamp/YELLOW_OFF.png" alt="Yellow Lamp" class="yellow-lamp" style="width:160px; height:280px;">
+                <img src="lamp/GREEN_OFF.png" alt="Green Lamp" class="green-lamp" style="width:160px; height:280px;">
+            </div>
+        </div>
+
+        <!-- 선형 차트 -->
+        <div class="chart-container">
+            <h2 style="text-align: center;">10분 간의 PV 값의 분포</h1>
+            <div id="main2" class="chart"></div>
+        </div>
+        
+        <!-- 원형 차트 -->
+        <div class="chart-container">
+            <h2 style="text-align: center;">PV 값의 분포</h1>
+            <div id="main3" class="chart" style="margin-top: 30px;"></div> 
+        </div>
+    </div>
+
+    <!-- TAIL 영역 -->
+    <div id="tail">
+        <p>충남인력개발원 천안인적자원개발센터 / (천안)지능화공장소프트웨어개발자</p>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // 초기화 변수들
+            let latestPV = null;
+            let highValue = null;
+            let lowValue = null;
+            let intervalId = null;
+            
+            
+            // 로컬 스토리지에서 highValue, lowValue 가져오기
+            const storedHighValue = localStorage.getItem('highValue');
+            const storedLowValue = localStorage.getItem('lowValue');
+            
+            if (storedHighValue) {
+                $('#high-input').val(storedHighValue);
+            }
+            
+            if (storedLowValue) {
+                $('#low-input').val(storedLowValue);
+            }
+        
+            // 현재값을 가져오는 함수
+            function fetchCurrentValue() {
+                $.ajax({
+                    url: 'http://54.180.212.252:3000/api/recent',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data && data.length > 0) {
+                            latestPV = parseFloat(data[0].PV);
+                            $('#current-value').text(`현재온도(PV): ${latestPV} °C`);
+                            updateLamps();
+                        } else {
+                            $('#current-value').text("현재온도(PV): 데이터 없음");
+                            latestPV = null;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#current-value').text("현재온도(PV): 데이터 불러오기 실패");
+                        latestPV = null;
+                    }
+                });
+            }
+        
+            // 램프 상태 업데이트 함수
+            function updateLamps() {
+                const redLamp = $('.red-lamp');
+                const yellowLamp = $('.yellow-lamp');
+                const greenLamp = $('.green-lamp');
+        
+                if (highValue === null || lowValue === null) {
+                    redLamp.attr('src', 'lamp/RED_OFF.png');
+                    yellowLamp.attr('src', 'lamp/YELLOW_OFF.png');
+                    greenLamp.attr('src', 'lamp/GREEN_OFF.png');
+                    return;
+                }
+        
+                if (latestPV > highValue) {
+                    redLamp.attr('src', 'lamp/RED_ON.png');
+                    yellowLamp.attr('src', 'lamp/YELLOW_OFF.png');
+                    greenLamp.attr('src', 'lamp/GREEN_OFF.png');
+                } else if (latestPV < lowValue) {
+                    redLamp.attr('src', 'lamp/RED_OFF.png');
+                    yellowLamp.attr('src', 'lamp/YELLOW_ON.png');
+                    greenLamp.attr('src', 'lamp/GREEN_OFF.png');
+                } else {
+                    redLamp.attr('src', 'lamp/RED_OFF.png');
+                    yellowLamp.attr('src', 'lamp/YELLOW_OFF.png');
+                    greenLamp.attr('src', 'lamp/GREEN_ON.png');
+                }
+            }
+        
+            // High 버튼 클릭 이벤트
+            $('#hv').click(function() {
+                highValue = parseFloat($('#high-input').val());
+                if (isNaN(highValue)) {
+                    alert("유효한 High 값을 입력하세요.");
+                    return;
+                }
+                localStorage.setItem('highValue', highValue);
+                alert(`High 값이 ${highValue}로 설정되었습니다.`);
+            });
+        
+            // Low 버튼 클릭 이벤트
+            $('#lv').click(function() {
+                lowValue = parseFloat($('#low-input').val());
+                if (isNaN(lowValue)) {
+                    alert("유효한 Low 값을 입력하세요.");
+                    return;
+                }
+                localStorage.setItem('lowValue', lowValue);
+                alert(`Low 값이 ${lowValue}로 설정되었습니다.`);
+            });
+        
+            // 주기적으로 현재값을 가져오는 기능 실행
+            intervalId = setInterval(fetchCurrentValue, 10000);
+            fetchCurrentValue();
+        
+            // 선형 차트 (최근 20개의 데이터)
+            function loadLineChartData() {
+                $.ajax({
+                    url: 'http://54.180.212.252:3000/api/recent', 
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        //const times = data.map(item => {
+		    	//    console.log(item.TIME);  // 여기서 item.TIME을 콘솔에 출력
+                        //    const time = new Date(item.TIME);
+                        //    return `${(time.getMonth() + 1).toString().padStart(2, '0')}-${time.getDate().toString().padStart(2, '0')} 
+                        //    ${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}`;
+                        //});
+                        //const pv_values = data.map(item => item.PV);
+
+			var times = data.map(item => item.TIME);
+                    	var pv_values = data.map(item => item.PV);
+        
+                        var myChart2 = echarts.init(document.getElementById('main2'));
+                        var option2 = {
+                            xAxis: { type: 'category', data: times },
+                            yAxis: { type: 'value' },
+                            series: [{ data: pv_values, type: 'line' }]
+                        };
+                        myChart2.setOption(option2);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("최근 데이터 요청 중 오류 발생: " + error);
+                    }
+                });
+            }
+        
+            loadLineChartData();
+        
+            // 원형 차트 (전체 데이터)
+            function loadPieChartData() {
+                $.ajax({
+                    url: 'http://54.180.212.252:3000/api/all', 
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        const pv_values = data.map(item => item.PV);
+                        const valueCounts = {};
+        
+                        pv_values.forEach(value => {
+                            const groupKey = Math.floor(value / 10) * 10;
+                            valueCounts[groupKey] = (valueCounts[groupKey] || 0) + 1;
+                        });
+        
+                        const pieData = [];
+                        const totalCount = pv_values.length;
+        
+                        for (const value in valueCounts) {
+                            const percentage = (valueCounts[value] / totalCount * 100).toFixed(2);
+                            pieData.push({ name: value, value: valueCounts[value], percentage: percentage + "%" });
+                        }
+        
+                        var myChart3 = echarts.init(document.getElementById('main3'));
+                        var option3 = {
+                            tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+                            legend: { orient: 'vertical', left: 'left' },
+                            series: [{ name: 'PV 값 분포', type: 'pie', radius: '80%', data: pieData }]
+                        };
+                        myChart3.setOption(option3);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("전체 데이터 요청 중 오류 발생: " + error);
+                    }
+                });
+            }
+        
+            loadPieChartData();
+            
+            function formatDate(dateString) {
+                var date = new Date(dateString);  // 날짜 문자열을 Date 객체로 변환
+                var year = date.getFullYear();
+                var month = (date.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작하므로 +1
+                var day = date.getDate().toString().padStart(2, '0');
+                var hours = date.getHours().toString().padStart(2, '0');
+                var minutes = date.getMinutes().toString().padStart(2, '0');
+                var seconds = date.getSeconds().toString().padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;  // 원하는 형식으로 반환
+            }
+
+        
+            // '조 회' 버튼 클릭 시 알람 회수 업데이트
+            $('#check-alarms').click(function() {
+                $.ajax({
+                    url: 'http://54.180.212.252:3000/api/all',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                    
+                        const pv_values = data.map(item => item.PV);
+                        const time_values = data.map(item => item.TIME);
+        
+                        const highAlarmCount = pv_values.filter(value => value > highValue).length;
+                        const highAlarmTime = time_values[pv_values.findIndex(value => value > highValue)];
+        
+                        const lowAlarmCount = pv_values.filter(value => value <= lowValue).length;
+                        const lowAlarmTime = time_values[pv_values.findIndex(value => value <= lowValue)];
+        
+                        $('#high-alarm-count').text(highAlarmCount);
+                        $('#low-alarm-count').text(lowAlarmCount);
+                        $('#high-alarm-time').text(highAlarmTime);
+                        $('#low-alarm-time').text(lowAlarmTime);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("전체 데이터 요청 중 오류 발생: " + error);
+                    }
+                });
+            });
+        
+            // EasyUI 테이블 데이터 로드 (초기 데이터 로드)
+            function loadTableData() {
+                $.ajax({
+                    url: 'http://54.180.212.252:3000/api/all',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        const groupedData = {};
+                        data.forEach(item => {
+                            const time = new Date(item.TIME);
+                            const groupKey = Math.floor(time.getMinutes() / 10) * 10;
+                            const groupTime = `${time.getHours().toString().padStart(2, '0')}:${groupKey.toString().padStart(2, '0')}`;
+        
+                            if (!groupedData[groupTime]) {
+                                groupedData[groupTime] = { values: [] };
+                            }
+        
+                            groupedData[groupTime].values.push(item.PV);
+                        });
+        
+                        const tableData = [];
+                        for (const groupTime in groupedData) {
+                            const values = groupedData[groupTime].values;
+                            const max = Math.max(...values);
+                            const min = Math.min(...values);
+                            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        
+                            tableData.push({
+                                time: groupTime,
+                                max: max.toFixed(2),
+                                avg: avg.toFixed(2),
+                                min: min.toFixed(2)
+                            });
+                        }
+        
+                        $('#dataTable').datagrid('loadData', tableData);
+                        $('#dataTable').datagrid('resize');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("데이터 요청 중 오류 발생: " + error);
+                    }
+                });
+            }
+        
+            loadTableData();
+        });
+
+    </script>
+</body>
+</html>
